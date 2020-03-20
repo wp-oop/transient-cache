@@ -1,0 +1,10 @@
+version: "3.3"
+
+services:
+  php:
+    container_name: "${PROJECT_NAME}_php"
+    build:
+      context: docker
+      dockerfile: Dockerfile_php
+    volumes:
+      - ${BASE_PATH}:/srv/

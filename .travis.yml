@@ -1,0 +1,26 @@
+language: php
+dist: trusty
+php:
+  - '7.0'
+  - '7.1'
+  - '7.2'
+  - '7.3'
+  - '7.4'
+  - nightly
+
+matrix:
+  allow_failures:
+    - php: nightly
+    - php: '7.4'
+  fast_finish: true
+
+before_script:
+  - composer update --prefer-dist
+script:
+  - vendor/bin/phpunit
+after_script:
+  - vendor/bin/test-reporter --coverage-report="test/coverage/clover.xml"
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files

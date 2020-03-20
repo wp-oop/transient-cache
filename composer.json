@@ -1,0 +1,13 @@
+{
+  "name": "wp-oop/transient-cache",
+  "description": "A PSR-16 wrapper for WP transients.",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Anton Ukhanev",
+      "email": "xedin.unknown@gmail.com",
+      "role": "Developer"
+    }
+  ]
+}

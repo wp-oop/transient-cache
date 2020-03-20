@@ -1,0 +1,6 @@
+FROM dockette/php:7.1
+
+RUN apt-get update \
+    && apt-get -y install software-properties-common dirmngr apt-transport-https lsb-release ca-certificates \
+    && add-apt-repository -y ppa:ondrej/php \
+    && apt-get install -y php7.1-xdebug
