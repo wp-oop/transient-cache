@@ -32,6 +32,7 @@
       <path value="$PROJECT_DIR$/vendor/sebastian/version" />
       <path value="$PROJECT_DIR$/vendor/myclabs/deep-copy" />
       <path value="$PROJECT_DIR$/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/vendor/johnpbloch/wordpress-core" />
     </include_path>
   </component>
   <component name="PhpInterpreters">
