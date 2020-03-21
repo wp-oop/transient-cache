@@ -87,10 +87,20 @@ class CachePool implements CacheInterface
         $this->validateKey($key);
         $origKey = $key;
         $key = $this->prepareKey($key);
-        $ttl = $ttl instanceof DateInterval
-            ? $this->getIntervalDuration($ttl)
-            : $ttl;
+
+        try {
+            $ttl = $ttl instanceof DateInterval
+                ? $this->getIntervalDuration($ttl)
+                : $ttl;
+        } catch (Exception $e) {
+            throw new CacheException(sprintf('Could not normalize cache TTL'));
+        }
+
         $ttl = is_null($ttl) ? 0 : $ttl;
+
+        if (!is_int($ttl)) {
+            throw new InvalidArgumentException(sprintf('The specified cache TTL is invalid'));
+        }
 
         if (!set_transient($key, $value, $ttl)) {
             throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey));
@@ -150,6 +160,10 @@ class CachePool implements CacheInterface
         if (!is_iterable($values)) {
             throw new InvalidArgumentException(sprintf('List of keys is not a list'));
         }
+
+        $ttl = $ttl instanceof DateInterval
+            ? $this->getIntervalDuration($ttl)
+            : $ttl;
 
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
