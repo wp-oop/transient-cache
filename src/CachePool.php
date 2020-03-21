@@ -43,7 +43,7 @@ class CachePool implements CacheInterface
     /**
      * @param wpdb   $wpdb         The WP database object.
      * @param string $poolName     The name of this cache pool. Must be unique to this instance.
-     * @param mixed $defaultValue  A random value. The more chaotic - the better.
+     * @param mixed $defaultValue  A random value. Used for false-negative detection. The more chaotic - the better.
      */
     public function __construct(wpdb $wpdb, string $poolName, $defaultValue)
     {
