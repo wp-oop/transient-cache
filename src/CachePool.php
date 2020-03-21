@@ -65,7 +65,14 @@ class CachePool implements CacheInterface
         $key = $this->prepareKey($key);
         $value = $this->getTransient($key);
 
-        if ($value === false) {
+        if ($value !== false) {
+            return $value;
+        }
+
+        $prefix = $this->getOptionNamePrefix();
+        $optionValue = $this->getOption("{$prefix}{$key}", $this->defaultValue);
+
+        if ($optionValue === $this->defaultValue) {
             return $default;
         }
 
@@ -169,7 +176,8 @@ class CachePool implements CacheInterface
     public function has($key)
     {
         $default = $this->defaultValue;
-        $value = $this->get($key, $default);
+        $prefix = $this->getOptionNamePrefix();
+        $value = $this->getOption("{$prefix}{$key}", $default);
 
         return $value !== $default;
     }
@@ -186,6 +194,19 @@ class CachePool implements CacheInterface
         $value = get_transient($key);
 
         return $value;
+    }
+
+    /**
+     * Retrieves an option value by name.
+     *
+     * @param string $name    The option name.
+     * @param null   $default The value to return if option not found.
+     *
+     * @return string The option value.
+     */
+    protected function getOption(string $name, $default = null): string
+    {
+        return (string) get_option($name, $default);
     }
 
     /**

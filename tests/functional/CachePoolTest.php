@@ -108,10 +108,15 @@ class CachePoolTest extends TestCase
             $value = uniqid('value');
             $separator = TestSubject::NAMESPACE_SEPARATOR;
             $transientName = "{$poolName}{$separator}{$key}";
+            $optionName = "_transient_$transientName";
             $subject = $this->createInstance($wpdb, $poolName, $defaultValue);
         }
 
         {
+            Functions\expect('get_option')
+                ->with($optionName)
+                ->andReturn($value);
+
             Functions\expect('get_transient')
                 ->with($transientName)
                 ->andReturn($value);
@@ -179,8 +184,10 @@ class CachePoolTest extends TestCase
             $defaultValue = uniqid('default');
             $wpdb = $this->createWpdb();
             $key = uniqid('key');
+            $default = uniqid('myval');
             $separator = TestSubject::NAMESPACE_SEPARATOR;
             $transientName = "{$poolName}{$separator}{$key}";
+            $optionName = "_transient_$transientName";
             $subject = $this->createInstance($wpdb, $poolName, $defaultValue);
         }
 
@@ -188,11 +195,14 @@ class CachePoolTest extends TestCase
             Functions\expect('get_transient')
                 ->with($transientName)
                 ->andReturn(false);
+            Functions\expect('get_option')
+                ->with($optionName)
+                ->andReturn($defaultValue);
         }
 
         {
-            $result = $subject->get($key, $defaultValue);
-            $this->assertEquals($defaultValue, $result);
+            $result = $subject->get($key, $default);
+            $this->assertEquals($default, $result);
         }
     }
 
@@ -260,19 +270,21 @@ class CachePoolTest extends TestCase
     {
         {
             $poolName = uniqid('pool');
+            $defaultValue = uniqid('default');
             $wpdb = $this->createWpdb();
             $key = uniqid('key');
             $separator = TestSubject::NAMESPACE_SEPARATOR;
             $transientName = "{$poolName}{$separator}{$key}";
+            $optionName = "_transient_$transientName";
             $notThereKey = uniqid('not-there');
             $notThereTransientName = "{$poolName}{$separator}{$notThereKey}";
-            $subject = $this->createInstance($wpdb, $poolName, uniqid('default'));
+            $notThereOptionName = "_transient_$notThereTransientName";
+            $subject = $this->createInstance($wpdb, $poolName,$defaultValue );
         }
 
         {
-            Functions\expect('get_transient')
-                ->with($transientName, $notThereTransientName)
-                ->andReturnValues([uniqid('value'), false]);
+            Functions\expect('get_option')
+                ->andReturnValues([uniqid('value'), $defaultValue]);
         }
 
         {
