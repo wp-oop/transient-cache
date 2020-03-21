@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "363950af23c8b7bdfaedcae9ca01f4cc",
+    "content-hash": "eac2537c03aa325cfdfca1042af03f97",
     "packages": [
         {
             "name": "psr/simple-cache",
@@ -56,6 +56,116 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "antecedent/patchwork",
+            "version": "2.1.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antecedent/patchwork.git",
+                "reference": "b98e046dd4c0acc34a0846604f06f6111654d9ea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/b98e046dd4c0acc34a0846604f06f6111654d9ea",
+                "reference": "b98e046dd4c0acc34a0846604f06f6111654d9ea",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=4"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignas Rudaitis",
+                    "email": "ignas.rudaitis@gmail.com"
+                }
+            ],
+            "description": "Method redefinition (monkey-patching) functionality for PHP.",
+            "homepage": "http://patchwork2.org/",
+            "keywords": [
+                "aop",
+                "aspect",
+                "interception",
+                "monkeypatching",
+                "redefinition",
+                "runkit",
+                "testing"
+            ],
+            "time": "2019-12-22T17:52:09+00:00"
+        },
+        {
+            "name": "brain/monkey",
+            "version": "2.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Brain-WP/BrainMonkey.git",
+                "reference": "b3ce8b619c26db6abd01b9dcfd6a2c0254060956"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Brain-WP/BrainMonkey/zipball/b3ce8b619c26db6abd01b9dcfd6a2c0254060956",
+                "reference": "b3ce8b619c26db6abd01b9dcfd6a2c0254060956",
+                "shasum": ""
+            },
+            "require": {
+                "antecedent/patchwork": "^2.0",
+                "mockery/mockery": ">=0.9 <2",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4",
+                "phpcompatibility/php-compatibility": "^9.3.0",
+                "phpunit/phpunit": "^5.7.9 || ^6.0 || ^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-version/1": "1.x-dev",
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Brain\\Monkey\\": "src/"
+                },
+                "files": [
+                    "inc/api.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Giuseppe Mazzapica",
+                    "email": "giuseppe.mazzapica@gmail.com",
+                    "homepage": "https://gmazzap.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Mocking utility for PHP functions and WordPress plugin API",
+            "keywords": [
+                "Monkey Patching",
+                "interception",
+                "mock",
+                "mock functions",
+                "mockery",
+                "patchwork",
+                "redefinition",
+                "runkit",
+                "test",
+                "testing"
+            ],
+            "time": "2019-11-24T16:03:21+00:00"
+        },
         {
             "name": "doctrine/instantiator",
             "version": "dev-master",
@@ -113,17 +223,65 @@
             "time": "2019-12-23T19:18:31+00:00"
         },
         {
+            "name": "hamcrest/hamcrest-php",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hamcrest/hamcrest-php.git",
+                "reference": "c4312ef926bd2ac2392f2a78c95d7e20ab439027"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hamcrest/hamcrest-php/zipball/c4312ef926bd2ac2392f2a78c95d7e20ab439027",
+                "reference": "c4312ef926bd2ac2392f2a78c95d7e20ab439027",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3|^7.0"
+            },
+            "replace": {
+                "cordoval/hamcrest-php": "*",
+                "davedevelopment/hamcrest-php": "*",
+                "kodova/hamcrest-php": "*"
+            },
+            "require-dev": {
+                "phpunit/php-file-iterator": "^1.4",
+                "phpunit/phpunit": "^4.8.36 || ^5.7 || ^6.5 || ^7.0",
+                "satooshi/php-coveralls": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.1-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "hamcrest"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "This is the PHP port of Hamcrest Matchers",
+            "keywords": [
+                "test"
+            ],
+            "time": "2019-12-27T10:18:06+00:00"
+        },
+        {
             "name": "johnpbloch/wordpress-core",
             "version": "5.4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnpbloch/wordpress-core.git",
-                "reference": "da1e6da66d26fc6d415e2f598ab8d135b75388e7"
+                "reference": "3e8106254ae448564c376a675002c40cea6b3e25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnpbloch/wordpress-core/zipball/da1e6da66d26fc6d415e2f598ab8d135b75388e7",
-                "reference": "da1e6da66d26fc6d415e2f598ab8d135b75388e7",
+                "url": "https://api.github.com/repos/johnpbloch/wordpress-core/zipball/3e8106254ae448564c376a675002c40cea6b3e25",
+                "reference": "3e8106254ae448564c376a675002c40cea6b3e25",
                 "shasum": ""
             },
             "require": {
@@ -150,7 +308,72 @@
                 "cms",
                 "wordpress"
             ],
-            "time": "2020-03-17T21:32:37+00:00"
+            "time": "2020-03-20T17:47:17+00:00"
+        },
+        {
+            "name": "mockery/mockery",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mockery/mockery.git",
+                "reference": "45c36a9c4f7dcab527d572a40705ede2b9793aaa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/45c36a9c4f7dcab527d572a40705ede2b9793aaa",
+                "reference": "45c36a9c4f7dcab527d572a40705ede2b9793aaa",
+                "shasum": ""
+            },
+            "require": {
+                "hamcrest/hamcrest-php": "~2.0",
+                "lib-pcre": ">=7.0",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~5.7.10|~6.5|~7.0|~8.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Mockery": "library/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Pádraic Brady",
+                    "email": "padraic.brady@gmail.com",
+                    "homepage": "http://blog.astrumfutura.com"
+                },
+                {
+                    "name": "Dave Marshall",
+                    "email": "dave.marshall@atstsolutions.co.uk",
+                    "homepage": "http://davedevelopment.co.uk"
+                }
+            ],
+            "description": "Mockery is a simple yet flexible PHP mock object framework",
+            "homepage": "https://github.com/mockery/mockery",
+            "keywords": [
+                "BDD",
+                "TDD",
+                "library",
+                "mock",
+                "mock objects",
+                "mockery",
+                "stub",
+                "test",
+                "test double",
+                "testing"
+            ],
+            "time": "2020-03-12T18:23:52+00:00"
         },
         {
             "name": "myclabs/deep-copy",
