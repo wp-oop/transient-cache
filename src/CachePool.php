@@ -26,6 +26,7 @@ class CachePool implements CacheInterface
     protected const FIELD_NAME_OPTION_NAME = 'option_name';
     protected const OPTION_NAME_PREFIX_TRANSIENT = '_transient_';
     protected const OPTION_NAME_PREFIX_TIMEOUT = 'timeout_';
+    protected const OPTION_NAME_MAX_LENGTH = 191;
 
     /**
      * @var wpdb
@@ -232,6 +233,15 @@ class CachePool implements CacheInterface
      */
     protected function validateKey(string $key)
     {
+        $prefix = $this->getTimeoutOptionNamePrefix();
+        if (strlen("{$prefix}{$key}") > static::OPTION_NAME_MAX_LENGTH) {
+            throw new InvalidArgumentException(sprintf(
+                'Given the %1$d char length of this cache pool\'s name, the key length must not exceed %2$d chars',
+                strlen($this->poolName),
+                static::OPTION_NAME_MAX_LENGTH - strlen($prefix)
+            ));
+        }
+
         $reservedSymbols = str_split(static::RESERVED_KEY_SYMBOLS, 1);
 
         foreach ($reservedSymbols as $symbol) {
@@ -354,6 +364,21 @@ class CachePool implements CacheInterface
     protected function getOptionNamePrefix(): string
     {
         $transientPrefix = static::OPTION_NAME_PREFIX_TRANSIENT;
+        $separator = static::NAMESPACE_SEPARATOR;
+        $namespace = $this->poolName;
+        $prefix = "{$transientPrefix}{$namespace}{$separator}";
+
+        return $prefix;
+    }
+
+    /**
+     * Retrieves the prefix of option names that represent transient timeouts of this cache pool.
+     *
+     * @return string The prefix.
+     */
+    protected function getTimeoutOptionNamePrefix(): string
+    {
+        $transientPrefix = static::OPTION_NAME_PREFIX_TRANSIENT . static::OPTION_NAME_PREFIX_TIMEOUT;
         $separator = static::NAMESPACE_SEPARATOR;
         $namespace = $this->poolName;
         $prefix = "{$transientPrefix}{$namespace}{$separator}";

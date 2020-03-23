@@ -15,6 +15,9 @@ use function Brain\Monkey\tearDown;
 
 class CachePoolTest extends TestCase
 {
+    protected const MAX_KEY_LENGTH = 64;
+    protected const MAX_POOL_NAME_LENGTH = 107;
+
     protected function tearDown()
     {
         tearDown();
@@ -46,6 +49,19 @@ class CachePoolTest extends TestCase
             ->getMock();
 
         return $mock;
+    }
+
+    public function generateRandomString(int $length): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+
+        return $randomString;
     }
 
     /**
@@ -231,6 +247,30 @@ class CachePoolTest extends TestCase
         }
 
         {
+            $subject->set($key, $value, $ttl);
+        }
+    }
+
+    /**
+     * Tests that a correct exception is thrown when key too long.
+     *
+     * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    public function testSetKeyTooLong()
+    {
+        {
+            $poolName = $this->generateRandomString(static::MAX_POOL_NAME_LENGTH + 1);
+            $wpdb = $this->createWpdb();
+            $key = $this->generateRandomString(static::MAX_KEY_LENGTH);
+            $value = uniqid('value');
+            $ttl = rand(1, 9999);
+            $separator = TestSubject::NAMESPACE_SEPARATOR;
+            $subject = $this->createInstance($wpdb, $poolName, uniqid('default'));
+        }
+
+        {
+            $this->expectException(InvalidArgumentException::class);
             $subject->set($key, $value, $ttl);
         }
     }
