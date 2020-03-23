@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/wp-oop/transient-cache.svg?branch=develop)](https://travis-ci.org/wp-oop/transient-cache)
 [![Latest Stable Version](https://poser.pugx.org/wp-oop/transient-cache/version)](https://packagist.org/packages/wp-oop/transient-cache)
 
-A [PSR-16][] wrapper for WP transients.
+A fully compliant [PSR-16][] wrapper for WP transients.
 
 ## Details
 A common means of caching values in WordPress is by using [transients][transients-api]. However, this approach suffers
@@ -66,8 +66,24 @@ $pool2->has('123'); // false
 $pool1->has('123'); // true
 ```
 
+### Limitations
+#### Key Length
+Due to the way the underlying backend (the WordPress transients via options) works, **the combined length of the
+pool name and cache key MUST NOT exceed a 171 char limit**. This is because (at least in WP 5.0+)
+the [length of the `option_name` field of the `options` table is 191 chars][1], and transients require the longest
+prefix of `_transient_timeout_` to the option name, which together with the 1-char separator is 20 chars. Using
+anything greater than this length will result in potentially devastating behaviour described in [Trac #15058][].
+
+In any case, the general recommendation is to not use cache keys longer than 64 chars, as this is the minimal
+length required for support by the PSR-16 spec. Using anything longer than that will cause consumers to become
+dependent on implementation detail, which breaks interoperability. Given that, **the cache pool name SHOULD NOT
+exceed 107 chars**.
+
+
 [transients-api]: https://codex.wordpress.org/Transients_API
 [`dhii/module-interface`]: https://github.com/Dhii/module-interface
 
-[PSR-16]: https://www.php-fig.org/psr/psr-16/ 
+[PSR-16]: https://www.php-fig.org/psr/psr-16/
 
+[1]: https://github.com/WordPress/WordPress/blob/5.0-branch/wp-admin/includes/schema.php#L142
+[Trac #15058]: https://core.trac.wordpress.org/ticket/15058
