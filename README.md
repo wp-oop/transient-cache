@@ -79,11 +79,18 @@ length required for support by the PSR-16 spec. Using anything longer than that 
 dependent on implementation detail, which breaks interoperability. Given that, **the cache pool name SHOULD NOT
 exceed 107 chars**.
 
+#### Value Length
+The storage backend (WP options) [declares][2] the corresponding field to be of type [`LONGTEXT`][], which
+[allows][3] up to **4 GB** (2<sup>32</sup>) of data. This is therefore the limit on cache values. 
+
 
 [transients-api]: https://codex.wordpress.org/Transients_API
 [`dhii/module-interface`]: https://github.com/Dhii/module-interface
 
 [PSR-16]: https://www.php-fig.org/psr/psr-16/
+[`LONGTEXT`]: https://dev.mysql.com/doc/refman/8.0/en/blob.html
 
 [1]: https://github.com/WordPress/WordPress/blob/5.0-branch/wp-admin/includes/schema.php#L142
+[2]: https://github.com/WordPress/WordPress/blob/master/wp-admin/includes/schema.php#L144
+[3]: https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html#data-types-storage-reqs-strings
 [Trac #15058]: https://core.trac.wordpress.org/ticket/15058
