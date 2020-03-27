@@ -74,10 +74,10 @@ the [length of the `option_name` field of the `options` table is 191 chars][1], 
 prefix of `_transient_timeout_` to the option name, which together with the 1-char separator is 20 chars. Using
 anything greater than this length will result in potentially devastating behaviour described in [Trac #15058][].
 
-In any case, the general recommendation is to not use cache keys longer than 64 chars, as this is the minimal
-length required for support by the PSR-16 spec. Using anything longer than that will cause consumers to become
-dependent on implementation detail, which breaks interoperability. Given that, **the cache pool name SHOULD NOT
-exceed 107 chars**.
+In any case, the general recommendation is that **consumers SHOULD NOT use cache keys longer than 64 chars**,
+as this is the minimal length required for support by the PSR-16 spec. Using anything longer than that will
+cause consumers to become dependent on implementation detail, which breaks interoperability.
+Given that, **the cache pool name SHOULD NOT exceed 107 chars**.
 
 #### Value Length
 The storage backend (WP options) [declares][2] the corresponding field to be of type [`LONGTEXT`][], which
