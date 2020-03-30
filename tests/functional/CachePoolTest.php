@@ -27,11 +27,11 @@ class CachePoolTest extends TestCase
     /**
      * @return TestSubject&MockObject
      */
-    public function createInstance(wpdb $wpdb, string $poolName, $defaultValue): TestSubject
+    public function createInstance(wpdb $wpdb, string $poolName, $defaultValue, $defaultTtl = null): TestSubject
     {
         $mock = $this->getMockBuilder(TestSubject::class)
             ->setMethods(null)
-            ->setConstructorArgs([$wpdb, $poolName, $defaultValue])
+            ->setConstructorArgs([$wpdb, $poolName, $defaultValue, $defaultTtl])
             ->getMock();
 
         return $mock;
@@ -248,6 +248,35 @@ class CachePoolTest extends TestCase
 
         {
             $subject->set($key, $value, $ttl);
+        }
+    }
+
+    /**
+     * @doesNotPerformAssertions
+     * @throws \Brain\Monkey\Expectation\Exception\ExpectationArgsRequired
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    public function testSetDefaultTtl()
+    {
+        {
+            $poolName = uniqid('pool');
+            $wpdb = $this->createWpdb();
+            $key = uniqid('key');
+            $value = uniqid('value');
+            $defaultTtl = new DateInterval('P2D');
+            $separator = TestSubject::NAMESPACE_SEPARATOR;
+            $transientName = "{$poolName}{$separator}{$key}";
+            $subject = $this->createInstance($wpdb, $poolName, uniqid('default'), $defaultTtl);
+        }
+
+        {
+            Functions\expect('set_transient')
+                ->with($transientName, $value, 2 * 60 * 60 * 24)
+                ->andReturn(true);
+        }
+
+        {
+            $subject->set($key, $value, null);
         }
     }
 
