@@ -191,8 +191,7 @@ class CachePool implements CacheInterface
     public function has($key)
     {
         $default = $this->defaultValue;
-        $prefix = $this->getOptionNamePrefix();
-        $value = $this->getOption("{$prefix}{$key}", $default);
+        $value = $this->get($key, $default);
 
         return $value !== $default;
     }
