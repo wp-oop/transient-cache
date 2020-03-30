@@ -41,7 +41,7 @@ class CachePool implements CacheInterface
      */
     protected $defaultValue;
     /**
-     * @var int|DateInterval|null
+     * @var int|DateInterval
      */
     protected $defaultTtl;
 
@@ -49,9 +49,9 @@ class CachePool implements CacheInterface
      * @param wpdb   $wpdb         The WP database object.
      * @param string $poolName     The name of this cache pool. Must be unique to this instance.
      * @param mixed $defaultValue  A random value. Used for false-negative detection. The more chaotic - the better.
-     * @param int|DateInterval|null $defaultTtl Optional default TTL to use when caching new entries.
+     * @param int|DateInterval $defaultTtl Default TTL to use when caching new entries.
      */
-    public function __construct(wpdb $wpdb, string $poolName, $defaultValue, $defaultTtl = null)
+    public function __construct(wpdb $wpdb, string $poolName, $defaultValue, $defaultTtl = 0)
     {
         if ($poolName === static::OPTION_NAME_PREFIX_TIMEOUT) {
             throw new RangeException(sprintf('Pool name cannot be "%1$s"', static::OPTION_NAME_PREFIX_TIMEOUT));
@@ -104,8 +104,6 @@ class CachePool implements CacheInterface
         } catch (Exception $e) {
             throw new CacheException(sprintf('Could not normalize cache TTL'));
         }
-
-        $ttl = is_null($ttl) ? 0 : $ttl;
 
         if (!is_int($ttl)) {
             throw new InvalidArgumentException(sprintf('The specified cache TTL is invalid'));
