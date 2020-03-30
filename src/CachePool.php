@@ -40,13 +40,18 @@ class CachePool implements CacheInterface
      * @var mixed
      */
     protected $defaultValue;
+    /**
+     * @var int|DateInterval|null
+     */
+    protected $defaultTtl;
 
     /**
      * @param wpdb   $wpdb         The WP database object.
      * @param string $poolName     The name of this cache pool. Must be unique to this instance.
      * @param mixed $defaultValue  A random value. Used for false-negative detection. The more chaotic - the better.
+     * @param int|DateInterval|null $defaultTtl Optional default TTL to use when caching new entries.
      */
-    public function __construct(wpdb $wpdb, string $poolName, $defaultValue)
+    public function __construct(wpdb $wpdb, string $poolName, $defaultValue, $defaultTtl = null)
     {
         if ($poolName === static::OPTION_NAME_PREFIX_TIMEOUT) {
             throw new RangeException(sprintf('Pool name cannot be "%1$s"', static::OPTION_NAME_PREFIX_TIMEOUT));
@@ -55,6 +60,7 @@ class CachePool implements CacheInterface
         $this->wpdb = $wpdb;
         $this->poolName = $poolName;
         $this->defaultValue = $defaultValue;
+        $this->defaultTtl = $defaultTtl;
     }
 
     /**
@@ -88,6 +94,8 @@ class CachePool implements CacheInterface
         $this->validateKey($key);
         $origKey = $key;
         $key = $this->prepareKey($key);
+
+        $ttl = is_null($ttl) ? $this->defaultTtl : $ttl;
 
         try {
             $ttl = $ttl instanceof DateInterval
