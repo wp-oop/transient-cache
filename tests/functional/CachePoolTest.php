@@ -342,18 +342,16 @@ class CachePoolTest extends TestCase
             $defaultValue = uniqid('default');
             $wpdb = $this->createWpdb();
             $key = uniqid('key');
-            $separator = TestSubject::NAMESPACE_SEPARATOR;
-            $transientName = "{$poolName}{$separator}{$key}";
-            $optionName = "_transient_$transientName";
             $notThereKey = uniqid('not-there');
-            $notThereTransientName = "{$poolName}{$separator}{$notThereKey}";
-            $notThereOptionName = "_transient_$notThereTransientName";
-            $subject = $this->createInstance($wpdb, $poolName,$defaultValue );
+            $subject = $this->createInstance($wpdb, $poolName, $defaultValue);
         }
 
         {
+            Functions\expect('get_transient')
+                ->andReturnValues([uniqid('value'), false]);
+
             Functions\expect('get_option')
-                ->andReturnValues([uniqid('value'), $defaultValue]);
+                ->andReturnValues([$defaultValue]);
         }
 
         {
