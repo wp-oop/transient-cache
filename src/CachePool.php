@@ -12,6 +12,19 @@ use wpdb;
 use WpOop\TransientCache\Exception\CacheException;
 use WpOop\TransientCache\Exception\InvalidArgumentException;
 
+use function is_int;
+use function is_iterable;
+use function is_null;
+use function sprintf;
+use function strlen;
+use function strpos;
+use function str_split;
+use function substr;
+use function delete_transient;
+use function get_option;
+use function get_transient;
+use function set_transient;
+
 /**
  * {@inheritDoc}
  *
