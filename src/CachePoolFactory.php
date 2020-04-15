@@ -7,6 +7,8 @@ use DateInterval;
 use Psr\SimpleCache\CacheInterface;
 use wpdb;
 
+use function uniqid;
+
 /**
  * @inheritDoc
  */
