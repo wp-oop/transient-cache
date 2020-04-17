@@ -383,12 +383,24 @@ class CachePool implements CacheInterface
      */
     protected function getTimeoutOptionNamePrefix(): string
     {
-        $transientPrefix = static::OPTION_NAME_PREFIX_TRANSIENT . static::OPTION_NAME_PREFIX_TIMEOUT;
+        $transientPrefix = $this->getTransientTimeoutOptionNamePrefix();
         $separator = static::NAMESPACE_SEPARATOR;
         $namespace = $this->poolName;
         $prefix = "{$transientPrefix}{$namespace}{$separator}";
 
         return $prefix;
+    }
+
+    /**
+     * Retrieves the prefix of an option name that represents a transient timeout.
+     *
+     * This is the longest prefix of transient options.
+     *
+     * @return string The prefix.
+     */
+    protected function getTransientTimeoutOptionNamePrefix(): string
+    {
+        return static::OPTION_NAME_PREFIX_TRANSIENT . static::OPTION_NAME_PREFIX_TIMEOUT;
     }
 
     /**
