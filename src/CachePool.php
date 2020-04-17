@@ -117,6 +117,8 @@ class CachePool implements CacheInterface
         } catch (RuntimeException $e) {
             throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey), 0, $e);
         }
+
+        return true;
     }
 
     /**
@@ -133,6 +135,8 @@ class CachePool implements CacheInterface
         if (!delete_transient($key)) {
             throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey));
         }
+
+        return true;
     }
 
     /**
@@ -148,6 +152,8 @@ class CachePool implements CacheInterface
         } catch (Exception|InvalidArgumentExceptionInterface $e) {
             throw new CacheException(sprintf('Could not clear cache'), 0, $e);
         }
+
+        return true;
     }
 
     /**
@@ -192,6 +198,8 @@ class CachePool implements CacheInterface
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+
+        return true;
     }
 
     /**
@@ -208,6 +216,8 @@ class CachePool implements CacheInterface
         foreach ($keys as $key) {
             $this->delete($key);
         }
+
+        return true;
     }
 
     /**
