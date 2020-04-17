@@ -12,6 +12,7 @@ use RuntimeException;
 use wpdb;
 use WpOop\TransientCache\Exception\CacheException;
 use WpOop\TransientCache\Exception\InvalidArgumentException;
+use Psr\SimpleCache\InvalidArgumentException as InvalidArgumentExceptionInterface;
 
 /**
  * {@inheritDoc}
@@ -120,6 +121,8 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem deleting.
      */
     public function delete($key)
     {
@@ -134,19 +137,23 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem clearing.
      */
     public function clear()
     {
         try {
             $keys = $this->getAllKeys();
             $this->deleteMultiple($keys);
-        } catch (Exception $e) {
+        } catch (Exception|InvalidArgumentExceptionInterface $e) {
             throw new CacheException(sprintf('Could not clear cache'), 0, $e);
         }
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem retrieving.
      */
     public function getMultiple($keys, $default = null)
     {
@@ -165,6 +172,8 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem persisting.
      */
     public function setMultiple($values, $ttl = null)
     {
@@ -172,9 +181,13 @@ class CachePool implements CacheInterface
             throw new InvalidArgumentException(sprintf('List of keys is not a list'));
         }
 
-        $ttl = $ttl instanceof DateInterval
-            ? $this->getIntervalDuration($ttl)
-            : $ttl;
+        try {
+            $ttl = $ttl instanceof DateInterval
+                ? $this->getIntervalDuration($ttl)
+                : $ttl;
+        } catch (Exception $e) {
+            throw new CacheException(sprintf('Could not normalize cache TTL'));
+        }
 
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
@@ -183,6 +196,8 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem deleting.
      */
     public function deleteMultiple($keys)
     {
@@ -197,6 +212,8 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem determining.
      */
     public function has($key)
     {
