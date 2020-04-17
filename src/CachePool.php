@@ -132,8 +132,10 @@ class CachePool implements CacheInterface
         $origKey = $key;
         $key = $this->prepareKey($key);
 
-        if (!delete_transient($key)) {
-            throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey));
+        try {
+            $this->deleteTransient($key);
+        } catch (Exception $e) {
+            throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey), 0, $e);
         }
 
         return true;
@@ -331,6 +333,20 @@ class CachePool implements CacheInterface
     protected function getOptionOriginal(string $key, $default = null)
     {
         return get_option($key, $default);
+    }
+
+    /**
+     * Deletes a transient with the specified key.
+     *
+     * @param string $key The key to delete a transient for.
+     *
+     * @throws RuntimeException If problem deleting.
+     */
+    protected function deleteTransient(string $key): void
+    {
+        if (!delete_transient($key)) {
+            throw new RuntimeException(sprintf('Could not delete transient for key "%1$s"', $key));
+        }
     }
 
     /**
