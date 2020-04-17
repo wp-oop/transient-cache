@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
 use RangeException;
+use RuntimeException;
 use wpdb;
 use WpOop\TransientCache\Exception\CacheException;
 use WpOop\TransientCache\Exception\InvalidArgumentException;
@@ -88,6 +89,9 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If TTL cannot be normalized to a number of seconds.
+     * @throws InvalidArgumentException If TTL is invalid.
      */
     public function set($key, $value, $ttl = null)
     {
@@ -109,8 +113,10 @@ class CachePool implements CacheInterface
             throw new InvalidArgumentException(sprintf('The specified cache TTL is invalid'));
         }
 
-        if (!set_transient($key, $value, $ttl)) {
-            throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey));
+        try {
+            $this->setTransient($key, $value, $ttl);
+        } catch (RuntimeException $e) {
+            throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey), 0, $e);
         }
     }
 
@@ -217,6 +223,25 @@ class CachePool implements CacheInterface
     }
 
     /**
+     * Assigns a transient value, by key.
+     *
+     * @param string $key   The transient key.
+     * @param mixed  $value The transient value. Any serializable object.
+     * @param int    $ttl   The amount of seconds after which the transient will expire.
+     *
+     * @throws RangeException If key invalid.
+     * @throws RuntimeException If problem setting.
+     */
+    protected function setTransient(string $key, $value, int $ttl): void
+    {
+        $this->validateTransientKey($key);
+
+        if(!set_transient($key, $value, $ttl)) {
+            throw new RuntimeException(sprintf('Could not set transient "%1$s" with TTL %2$ss', $key, $ttl));
+        }
+    }
+
+    /**
      * Retrieves an option value by name.
      *
      * @param string $name    The option name.
@@ -254,6 +279,35 @@ class CachePool implements CacheInterface
                 throw new InvalidArgumentException(sprintf('Cache key "%1$s" is invalid', $key));
             }
         }
+    }
+
+    /**
+     * Validates a transient key.
+     *
+     * @param string $key The key to validate.
+     *
+     * @throws RangeException If key is invalid.
+     */
+    protected function validateTransientKey(string $key): void
+    {
+        $maxLength = $this->getTransientKeyMaxLength();
+        $keyLength = strlen($key);
+        if ($keyLength > $maxLength) {
+            throw new RangeException(sprintf('Transient key "%1$s" length is %2$d chars, which exceeds max length of %3$d chars', $key, $keyLength, $maxLength));
+        }
+    }
+
+    /**
+     * Retrieves the amount of characters at most allowed in a transient key.
+     *
+     * @return int The amount of characters.
+     */
+    protected function getTransientKeyMaxLength(): int
+    {
+        $longestPrefix = $this->getTransientTimeoutOptionNamePrefix();
+        $keyMaxLength = static::OPTION_NAME_MAX_LENGTH - strlen($longestPrefix);
+
+        return $keyMaxLength;
     }
 
     /**
