@@ -100,7 +100,7 @@ class SilentPool implements CacheInterface
                 throw $e;
             }
 
-            return false;
+            return [];
         }
     }
 
