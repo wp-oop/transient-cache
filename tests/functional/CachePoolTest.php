@@ -104,7 +104,7 @@ class CachePoolTest extends TestCase
         }
 
         {
-            $subject->clear($key);
+            $subject->clear();
         }
     }
 

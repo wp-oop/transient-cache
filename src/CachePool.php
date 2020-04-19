@@ -8,9 +8,11 @@ use DateTimeImmutable;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
 use RangeException;
+use RuntimeException;
 use wpdb;
 use WpOop\TransientCache\Exception\CacheException;
 use WpOop\TransientCache\Exception\InvalidArgumentException;
+use Psr\SimpleCache\InvalidArgumentException as InvalidArgumentExceptionInterface;
 
 /**
  * {@inheritDoc}
@@ -65,22 +67,20 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem retrieving.
      */
     public function get($key, $default = null)
     {
         $this->validateKey($key);
-        $key = $this->prepareKey($key);
-        $value = $this->getTransient($key);
+        $transientKey = $this->prepareKey($key);
 
-        if ($value !== false) {
-            return $value;
-        }
-
-        $prefix = $this->getOptionNamePrefix();
-        $optionValue = $this->getOption("{$prefix}{$key}", $this->defaultValue);
-
-        if ($optionValue === $this->defaultValue) {
+        try {
+            $value = $this->getTransient($transientKey);
+        } catch (RangeException $e) {
             return $default;
+        } catch (RuntimeException $e) {
+            throw new CacheException(sprintf('Could not retrieve cache for key "%1$s"', $key), 0, $e);
         }
 
         return $value;
@@ -88,6 +88,9 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If TTL cannot be normalized to a number of seconds.
+     * @throws InvalidArgumentException If TTL is invalid.
      */
     public function set($key, $value, $ttl = null)
     {
@@ -109,13 +112,19 @@ class CachePool implements CacheInterface
             throw new InvalidArgumentException(sprintf('The specified cache TTL is invalid'));
         }
 
-        if (!set_transient($key, $value, $ttl)) {
-            throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey));
+        try {
+            $this->setTransient($key, $value, $ttl);
+        } catch (RuntimeException $e) {
+            throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey), 0, $e);
         }
+
+        return true;
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem deleting.
      */
     public function delete($key)
     {
@@ -123,26 +132,36 @@ class CachePool implements CacheInterface
         $origKey = $key;
         $key = $this->prepareKey($key);
 
-        if (!delete_transient($key)) {
-            throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey));
+        try {
+            $this->deleteTransient($key);
+        } catch (Exception $e) {
+            throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey), 0, $e);
         }
+
+        return true;
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem clearing.
      */
     public function clear()
     {
         try {
             $keys = $this->getAllKeys();
             $this->deleteMultiple($keys);
-        } catch (Exception $e) {
+        } catch (Exception|InvalidArgumentExceptionInterface $e) {
             throw new CacheException(sprintf('Could not clear cache'), 0, $e);
         }
+
+        return true;
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem retrieving.
      */
     public function getMultiple($keys, $default = null)
     {
@@ -161,6 +180,8 @@ class CachePool implements CacheInterface
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem persisting.
      */
     public function setMultiple($values, $ttl = null)
     {
@@ -168,17 +189,25 @@ class CachePool implements CacheInterface
             throw new InvalidArgumentException(sprintf('List of keys is not a list'));
         }
 
-        $ttl = $ttl instanceof DateInterval
-            ? $this->getIntervalDuration($ttl)
-            : $ttl;
+        try {
+            $ttl = $ttl instanceof DateInterval
+                ? $this->getIntervalDuration($ttl)
+                : $ttl;
+        } catch (Exception $e) {
+            throw new CacheException(sprintf('Could not normalize cache TTL'));
+        }
 
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
         }
+
+        return true;
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem deleting.
      */
     public function deleteMultiple($keys)
     {
@@ -189,10 +218,14 @@ class CachePool implements CacheInterface
         foreach ($keys as $key) {
             $this->delete($key);
         }
+
+        return true;
     }
 
     /**
      * @inheritDoc
+     *
+     * @throws CacheException If problem determining.
      */
     public function has($key)
     {
@@ -207,9 +240,41 @@ class CachePool implements CacheInterface
      *
      * @param string $key The transient key.
      *
-     * @return string|bool The transient value.
+     * @return mixed The transient value.
+     *
+     * @throws RangeException If transient for key not found.
+     * @throws RuntimeException If problem retrieving.
      */
     protected function getTransient(string $key)
+    {
+        $value = $this->getTransientOriginal($key);
+
+        if ($value !== false) {
+            return $value;
+        }
+
+        $prefix = static::OPTION_NAME_PREFIX_TRANSIENT;
+        $optionKey = "{$prefix}{$key}";
+
+        try {
+            $this->getOption($optionKey);
+        } catch (RangeException $e) {
+            throw new RangeException(sprintf('Transient for key "%1$s" does not exist', $key), 0, $e);
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Could not verify existence of transient "%1$s"', $key), 0, $e);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Retrieves a transient value as is.
+     *
+     * @param string $key The transient key.
+     *
+     * @return mixed The transient value.
+     */
+    protected function getTransientOriginal(string $key)
     {
         $value = get_transient($key);
 
@@ -217,16 +282,71 @@ class CachePool implements CacheInterface
     }
 
     /**
+     * Assigns a transient value, by key.
+     *
+     * @param string $key   The transient key.
+     * @param mixed  $value The transient value. Any serializable object.
+     * @param int    $ttl   The amount of seconds after which the transient will expire.
+     *
+     * @throws RangeException If key invalid.
+     * @throws RuntimeException If problem setting.
+     */
+    protected function setTransient(string $key, $value, int $ttl): void
+    {
+        $this->validateTransientKey($key);
+
+        if(!set_transient($key, $value, $ttl)) {
+            throw new RuntimeException(sprintf('Could not set transient "%1$s" with TTL %2$ss', $key, $ttl));
+        }
+    }
+
+    /**
      * Retrieves an option value by name.
      *
-     * @param string $name    The option name.
+     * @param string $key     The option name.
+     *
+     * @return mixed The option value.
+     *
+     * @throws RangeException If option value does not exist.
+     * @throws RuntimeException If problem retrieving option.
+     */
+    protected function getOption(string $key)
+    {
+        $errorValue = $this->defaultValue;
+        $value = $this->getOptionOriginal($key, $errorValue);
+
+        if ($value === $errorValue) {
+            throw new RangeException(sprintf('Option for key "%1$s" does not exist', $key));
+        }
+
+        return $value;
+    }
+
+    /**
+     * Retrieves an option value by name.
+     *
+     * @param string $key     The option key.
      * @param null   $default The value to return if option not found.
      *
-     * @return string The option value.
+     * @return mixed The option value.
      */
-    protected function getOption(string $name, $default = null): string
+    protected function getOptionOriginal(string $key, $default = null)
     {
-        return (string) get_option($name, $default);
+        return get_option($key, $default);
+    }
+
+    /**
+     * Deletes a transient with the specified key.
+     *
+     * @param string $key The key to delete a transient for.
+     *
+     * @throws RuntimeException If problem deleting.
+     */
+    protected function deleteTransient(string $key): void
+    {
+        if (!delete_transient($key)) {
+            throw new RuntimeException(sprintf('Could not delete transient for key "%1$s"', $key));
+        }
     }
 
     /**
@@ -254,6 +374,35 @@ class CachePool implements CacheInterface
                 throw new InvalidArgumentException(sprintf('Cache key "%1$s" is invalid', $key));
             }
         }
+    }
+
+    /**
+     * Validates a transient key.
+     *
+     * @param string $key The key to validate.
+     *
+     * @throws RangeException If key is invalid.
+     */
+    protected function validateTransientKey(string $key): void
+    {
+        $maxLength = $this->getTransientKeyMaxLength();
+        $keyLength = strlen($key);
+        if ($keyLength > $maxLength) {
+            throw new RangeException(sprintf('Transient key "%1$s" length is %2$d chars, which exceeds max length of %3$d chars', $key, $keyLength, $maxLength));
+        }
+    }
+
+    /**
+     * Retrieves the amount of characters at most allowed in a transient key.
+     *
+     * @return int The amount of characters.
+     */
+    protected function getTransientKeyMaxLength(): int
+    {
+        $longestPrefix = $this->getTransientTimeoutOptionNamePrefix();
+        $keyMaxLength = static::OPTION_NAME_MAX_LENGTH - strlen($longestPrefix);
+
+        return $keyMaxLength;
     }
 
     /**
@@ -383,12 +532,24 @@ class CachePool implements CacheInterface
      */
     protected function getTimeoutOptionNamePrefix(): string
     {
-        $transientPrefix = static::OPTION_NAME_PREFIX_TRANSIENT . static::OPTION_NAME_PREFIX_TIMEOUT;
+        $transientPrefix = $this->getTransientTimeoutOptionNamePrefix();
         $separator = static::NAMESPACE_SEPARATOR;
         $namespace = $this->poolName;
         $prefix = "{$transientPrefix}{$namespace}{$separator}";
 
         return $prefix;
+    }
+
+    /**
+     * Retrieves the prefix of an option name that represents a transient timeout.
+     *
+     * This is the longest prefix of transient options.
+     *
+     * @return string The prefix.
+     */
+    protected function getTransientTimeoutOptionNamePrefix(): string
+    {
+        return static::OPTION_NAME_PREFIX_TRANSIENT . static::OPTION_NAME_PREFIX_TIMEOUT;
     }
 
     /**
