@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [[*next-version*]] - YYYY-MM-DD
+
+## [0.1.0-alpha2] - 2020-04-19
 ### Fixed
 - False-negative check used to confirm the negative because of wrong option name.
 - Non-getter interface methods of `CachePool` now return `true` on success.
