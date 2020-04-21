@@ -23,6 +23,13 @@ transients as storage. Exceptions are raised, interfaces implemented, and true f
 Each instance of the cache pool is logically independent from other instances, provided that it is given a unique
 name. The application is once again in control, and modules that use cache can become platform agnostic.
 
+### Compatibility
+- `CachePool` and `CachePoolFactory` offer best-practices error handling, throwing meaningful exceptions
+when something goes wrong. This violates PSR-16, but allows you to know what is failing.
+- `SilentPool` and `SilentPoolFactory` offer PSR-16 compatibility at the cost of error handling,
+hiding exceptions, and returning standards-compatible values. This complies with PSR-16, but at the cost of
+clarity and verbosity.
+
 ### Usage
 ```php
 /*
@@ -31,10 +38,12 @@ name. The application is once again in control, and modules that use cache can b
 use wpdb;
 use Psr\SimpleCache\CacheInterface;
 use WpOop\TransientCache\CachePoolFactory;
+use WpOop\TransientCache\SilentPoolFactory;
 
 /* @var $wpdb wpdb */
 $factory = new CachePoolFactory($wpdb);
-
+// Optionally hide exceptions for PSR-16 compatibility
+$factory = new SilentPoolFactory($factory); // Optional, and not recommended for testing environments!
 
 /*
  * Create cache pools - usually somewhere else

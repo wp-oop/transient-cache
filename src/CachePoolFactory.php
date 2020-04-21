@@ -23,6 +23,10 @@ class CachePoolFactory implements CachePoolFactoryInterface
      */
     protected $defaultTtl;
 
+    /**
+     * @param wpdb $wpdb       The WP database adapter.
+     * @param int  $defaultTtl The TTL to use if no TTL is supplied at consumption time.
+     */
     public function __construct(wpdb $wpdb, $defaultTtl = 0)
     {
         $this->wpdb = $wpdb;
