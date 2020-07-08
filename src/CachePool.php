@@ -93,7 +93,8 @@ class CachePool implements CacheInterface
         } catch (RangeException $e) {
             return $default;
         } catch (RuntimeException $e) {
-            throw new CacheException(sprintf('Could not retrieve cache for key "%1$s"', $key), 0, $e);
+            $message = sprintf('Could not retrieve cache for key "%1$s": %2$s', $key, $e->getMessage());
+            throw new CacheException($message, 0, $e);
         }
 
         return $value;
@@ -181,7 +182,7 @@ class CachePool implements CacheInterface
     public function getMultiple($keys, $default = null)
     {
         if (!is_iterable($keys)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not a list'));
+            throw new InvalidArgumentException(sprintf('List of keys is not an iterable value'));
         }
 
         $entries = [];
