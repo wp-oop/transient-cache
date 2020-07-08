@@ -149,7 +149,8 @@ class CachePool implements CacheInterface
         try {
             $this->deleteTransient($key);
         } catch (Exception $e) {
-            throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey), 0, $e);
+            $message = sprintf('Failed to delete cache for key "%1$s": %2$s', $origKey, $e->getMessage());
+            throw new CacheException($message, 0, $e);
         }
 
         return true;
@@ -359,7 +360,7 @@ class CachePool implements CacheInterface
     protected function deleteTransient(string $key): void
     {
         if (!delete_transient($key)) {
-            throw new RuntimeException(sprintf('Could not delete transient for key "%1$s"', $key));
+            throw new RuntimeException(sprintf('delete_transient() failed for key "%1$s"', $key));
         }
     }
 
