@@ -93,7 +93,8 @@ class CachePool implements CacheInterface
         } catch (RangeException $e) {
             return $default;
         } catch (RuntimeException $e) {
-            throw new CacheException(sprintf('Could not retrieve cache for key "%1$s"', $key), 0, $e);
+            $message = sprintf('Could not retrieve cache for key "%1$s": %2$s', $key, $e->getMessage());
+            throw new CacheException($message, 0, $e);
         }
 
         return $value;
@@ -118,17 +119,18 @@ class CachePool implements CacheInterface
                 ? $this->getIntervalDuration($ttl)
                 : $ttl;
         } catch (Exception $e) {
-            throw new CacheException(sprintf('Could not normalize cache TTL'));
+            throw new CacheException(sprintf('Could not normalize cache TTL: %s', $e->getMessage()));
         }
 
         if (!is_int($ttl)) {
-            throw new InvalidArgumentException(sprintf('The specified cache TTL is invalid'));
+            throw new InvalidArgumentException('The specified cache TTL is invalid');
         }
 
         try {
             $this->setTransient($key, $value, $ttl);
         } catch (RuntimeException $e) {
-            throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey), 0, $e);
+            $message = sprintf('Could not write value for key "%1$s" to cache: %2$s', $origKey, $e->getMessage());
+            throw new CacheException($message, 0, $e);
         }
 
         return true;
@@ -148,7 +150,8 @@ class CachePool implements CacheInterface
         try {
             $this->deleteTransient($key);
         } catch (Exception $e) {
-            throw new CacheException(sprintf('Could not delete cache for key "%1$s"', $origKey), 0, $e);
+            $message = sprintf('Failed to delete cache for key "%1$s": %2$s', $origKey, $e->getMessage());
+            throw new CacheException($message, 0, $e);
         }
 
         return true;
@@ -165,7 +168,7 @@ class CachePool implements CacheInterface
             $keys = $this->getAllKeys();
             $this->deleteMultiple($keys);
         } catch (Exception|InvalidArgumentExceptionInterface $e) {
-            throw new CacheException(sprintf('Could not clear cache'), 0, $e);
+            throw new CacheException(sprintf('Failed to clear cache: %s', $e->getMessage()), 0, $e);
         }
 
         return true;
@@ -179,7 +182,7 @@ class CachePool implements CacheInterface
     public function getMultiple($keys, $default = null)
     {
         if (!is_iterable($keys)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not a list'));
+            throw new InvalidArgumentException('List of keys is not an iterable value');
         }
 
         $entries = [];
@@ -199,7 +202,7 @@ class CachePool implements CacheInterface
     public function setMultiple($values, $ttl = null)
     {
         if (!is_iterable($values)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not a list'));
+            throw new InvalidArgumentException('List of keys is not an iterable value');
         }
 
         try {
@@ -207,7 +210,7 @@ class CachePool implements CacheInterface
                 ? $this->getIntervalDuration($ttl)
                 : $ttl;
         } catch (Exception $e) {
-            throw new CacheException(sprintf('Could not normalize cache TTL'));
+            throw new CacheException(sprintf('Could not normalize cache TTL: %s', $e->getMessage()));
         }
 
         foreach ($values as $key => $value) {
@@ -225,7 +228,7 @@ class CachePool implements CacheInterface
     public function deleteMultiple($keys)
     {
         if (!is_iterable($keys)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not a list'));
+            throw new InvalidArgumentException('List of keys is not an iterable value');
         }
 
         foreach ($keys as $key) {
@@ -309,7 +312,7 @@ class CachePool implements CacheInterface
         $this->validateTransientKey($key);
 
         if(!set_transient($key, $value, $ttl)) {
-            throw new RuntimeException(sprintf('Could not set transient "%1$s" with TTL %2$ss', $key, $ttl));
+            throw new RuntimeException(sprintf('set_transient() failed with key "%1$s" with TTL %2$ss', $key, $ttl));
         }
     }
 
@@ -358,7 +361,7 @@ class CachePool implements CacheInterface
     protected function deleteTransient(string $key): void
     {
         if (!delete_transient($key)) {
-            throw new RuntimeException(sprintf('Could not delete transient for key "%1$s"', $key));
+            throw new RuntimeException(sprintf('delete_transient() failed for key "%1$s"', $key));
         }
     }
 
