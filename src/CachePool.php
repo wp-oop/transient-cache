@@ -167,7 +167,7 @@ class CachePool implements CacheInterface
             $keys = $this->getAllKeys();
             $this->deleteMultiple($keys);
         } catch (Exception|InvalidArgumentExceptionInterface $e) {
-            throw new CacheException(sprintf('Could not clear cache'), 0, $e);
+            throw new CacheException(sprintf('Failed to clear cache: %s', $e->getMessage()), 0, $e);
         }
 
         return true;
@@ -227,7 +227,7 @@ class CachePool implements CacheInterface
     public function deleteMultiple($keys)
     {
         if (!is_iterable($keys)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not a list'));
+            throw new InvalidArgumentException('List of keys is not an iterable value');
         }
 
         foreach ($keys as $key) {
