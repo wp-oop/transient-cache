@@ -128,7 +128,8 @@ class CachePool implements CacheInterface
         try {
             $this->setTransient($key, $value, $ttl);
         } catch (RuntimeException $e) {
-            throw new CacheException(sprintf('Could not write value for key "%1$s" to cache', $origKey), 0, $e);
+            $message = sprintf('Could not write value for key "%1$s" to cache: %2$s', $origKey, $e->getMessage());
+            throw new CacheException($message, 0, $e);
         }
 
         return true;
@@ -309,7 +310,7 @@ class CachePool implements CacheInterface
         $this->validateTransientKey($key);
 
         if(!set_transient($key, $value, $ttl)) {
-            throw new RuntimeException(sprintf('Could not set transient "%1$s" with TTL %2$ss', $key, $ttl));
+            throw new RuntimeException(sprintf('set_transient() failed with key "%1$s" with TTL %2$ss', $key, $ttl));
         }
     }
 
