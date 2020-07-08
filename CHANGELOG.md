@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [[*next-version*]] - YYYY-MM-DD
 ### Added
-Missing function imports.
+- Missing function imports.
+
 ### Changed
 - (#13) Improved exception messages
 
