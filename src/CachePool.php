@@ -123,7 +123,7 @@ class CachePool implements CacheInterface
         }
 
         if (!is_int($ttl)) {
-            throw new InvalidArgumentException(sprintf('The specified cache TTL is invalid'));
+            throw new InvalidArgumentException('The specified cache TTL is invalid');
         }
 
         try {
@@ -182,7 +182,7 @@ class CachePool implements CacheInterface
     public function getMultiple($keys, $default = null)
     {
         if (!is_iterable($keys)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not an iterable value'));
+            throw new InvalidArgumentException('List of keys is not an iterable value');
         }
 
         $entries = [];
@@ -202,7 +202,7 @@ class CachePool implements CacheInterface
     public function setMultiple($values, $ttl = null)
     {
         if (!is_iterable($values)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not an iterable value'));
+            throw new InvalidArgumentException('List of keys is not an iterable value');
         }
 
         try {
