@@ -119,7 +119,7 @@ class CachePool implements CacheInterface
                 ? $this->getIntervalDuration($ttl)
                 : $ttl;
         } catch (Exception $e) {
-            throw new CacheException(sprintf('Could not normalize cache TTL'));
+            throw new CacheException(sprintf('Could not normalize cache TTL: %s', $e->getMessage()));
         }
 
         if (!is_int($ttl)) {
@@ -202,7 +202,7 @@ class CachePool implements CacheInterface
     public function setMultiple($values, $ttl = null)
     {
         if (!is_iterable($values)) {
-            throw new InvalidArgumentException(sprintf('List of keys is not a list'));
+            throw new InvalidArgumentException(sprintf('List of keys is not an iterable value'));
         }
 
         try {
@@ -210,7 +210,7 @@ class CachePool implements CacheInterface
                 ? $this->getIntervalDuration($ttl)
                 : $ttl;
         } catch (Exception $e) {
-            throw new CacheException(sprintf('Could not normalize cache TTL'));
+            throw new CacheException(sprintf('Could not normalize cache TTL: %s', $e->getMessage()));
         }
 
         foreach ($values as $key => $value) {
