@@ -466,9 +466,17 @@ class CachePool implements CacheInterface
     protected function selectColumn(string $query, string $columnName, array $args = []): iterable
     {
         $query = $this->prepareQuery($query, $args);
-        $results = $this->wpdb->get_col($query, $columnName);
+        $results = $this->wpdb->get_results($query, ARRAY_A);
 
-        return $results;
+        $column = [];
+        foreach ($results as $row) {
+            $value = array_key_exists($columnName, $row)
+                ? $row[$columnName]
+                : null;
+            $column[] = $value;
+        }
+
+        return $column;
     }
 
     /**
