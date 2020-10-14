@@ -447,7 +447,7 @@ class CachePool implements CacheInterface
         $tableName = $this->getTableName(static::TABLE_NAME_OPTIONS);
         $fieldName = static::FIELD_NAME_OPTION_NAME;
         $prefix = $this->getOptionNamePrefix();
-        $query = "SELECT `$fieldName` FROM `$tableName` WHERE `$fieldName` LIKE '%$prefix'";
+        $query = "SELECT `$fieldName` FROM `$tableName` WHERE `$fieldName` LIKE '$prefix%'";
         $results = $this->selectColumn($query, $fieldName);
         $keys = $this->getCacheKeysFromOptionNames($results);
 
@@ -466,9 +466,17 @@ class CachePool implements CacheInterface
     protected function selectColumn(string $query, string $columnName, array $args = []): iterable
     {
         $query = $this->prepareQuery($query, $args);
-        $results = $this->wpdb->get_col($query, $columnName);
+        $results = $this->wpdb->get_results($query, ARRAY_A);
 
-        return $results;
+        $column = [];
+        foreach ($results as $row) {
+            $value = array_key_exists($columnName, $row)
+                ? $row[$columnName]
+                : null;
+            $column[] = $value;
+        }
+
+        return $column;
     }
 
     /**

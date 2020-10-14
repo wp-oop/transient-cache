@@ -47,7 +47,7 @@ class SilentPoolTest extends TestCase
     {
         require_once(ROOT_DIR . '/vendor/johnpbloch/wordpress-core/wp-includes/wp-db.php');
         $mock = $this->getMockBuilder(wpdb::class)
-            ->setMethods(['get_col', 'query', '_real_escape'])
+            ->setMethods(['get_col', 'query', '_real_escape', 'get_results'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -106,9 +106,9 @@ class SilentPoolTest extends TestCase
             "{$pref}{$poolName}{$sep}" . uniqid('key3') => uniqid('val3'),
         ];
         $wpdb->expects($this->any())
-            ->method('get_col')
-            ->with("SELECT `option_name` FROM `{$tablePrefix}options` WHERE `option_name` LIKE '%_transient_$poolName/'")
-            ->will($this->returnValue(array_keys($options)));
+            ->method('get_results')
+            ->with("SELECT `option_name` FROM `{$tablePrefix}options` WHERE `option_name` LIKE '_transient_$poolName/%'")
+            ->will($this->returnValue($options));
 
         $defaultValue = $defaultValue ?? $this->generateRandomString(25);
         $defaultTtl = rand(1, 99999);
