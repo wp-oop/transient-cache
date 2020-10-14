@@ -26,6 +26,8 @@ use function delete_transient;
 use function get_option;
 use function get_transient;
 use function set_transient;
+use function array_key_exists;
+use function array_map;
 
 /**
  * {@inheritDoc}
@@ -468,15 +470,9 @@ class CachePool implements CacheInterface
         $query = $this->prepareQuery($query, $args);
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
-        $column = [];
-        foreach ($results as $row) {
-            $value = array_key_exists($columnName, $row)
-                ? $row[$columnName]
-                : null;
-            $column[] = $value;
-        }
-
-        return $column;
+        return array_map(function ($row) use ($columnName) {
+            return $row[$columnName] ?? null;
+        }, $results);
     }
 
     /**
