@@ -447,7 +447,7 @@ class CachePool implements CacheInterface
         $tableName = $this->getTableName(static::TABLE_NAME_OPTIONS);
         $fieldName = static::FIELD_NAME_OPTION_NAME;
         $prefix = $this->getOptionNamePrefix();
-        $query = "SELECT `$fieldName` FROM `$tableName` WHERE `$fieldName` LIKE '%$prefix'";
+        $query = "SELECT `$fieldName` FROM `$tableName` WHERE `$fieldName` LIKE '$prefix%'";
         $results = $this->selectColumn($query, $fieldName);
         $keys = $this->getCacheKeysFromOptionNames($results);
 
