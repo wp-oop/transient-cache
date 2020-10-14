@@ -26,7 +26,6 @@ use function delete_transient;
 use function get_option;
 use function get_transient;
 use function set_transient;
-use function array_key_exists;
 use function array_map;
 
 /**
