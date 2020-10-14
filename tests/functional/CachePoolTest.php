@@ -8,6 +8,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\InvalidArgumentException;
 use wpdb;
+use WpOop\TransientCache\CachePool;
 use WpOop\TransientCache\CachePool as TestSubject;
 use PHPUnit\Framework\TestCase;
 use Brain\Monkey\Functions;
@@ -44,7 +45,7 @@ class CachePoolTest extends TestCase
     {
         require_once(ROOT_DIR . '/vendor/johnpbloch/wordpress-core/wp-includes/wp-db.php');
         $mock = $this->getMockBuilder(wpdb::class)
-            ->setMethods(['get_col', 'query', '_real_escape'])
+            ->setMethods(['get_col', 'query', '_real_escape', 'get_results'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -88,11 +89,11 @@ class CachePoolTest extends TestCase
 
         {
             $options = array_map(function ($value) use ($poolName) {
-                return "_transient_$poolName/$value";
+                return ['option_name' => "_transient_$poolName/$value"];
             }, $keys);
             $wpdb->expects($this->exactly(1))
-                ->method('get_col')
-                ->with("SELECT `option_name` FROM `{$tablePrefix}options` WHERE `option_name` LIKE '%_transient_$poolName/'")
+                ->method('get_results')
+                ->with("SELECT `option_name` FROM `{$tablePrefix}options` WHERE `option_name` LIKE '_transient_$poolName/%'", ARRAY_A)
                 ->will($this->returnValue($options));
 
             Functions\expect('has_filter')
