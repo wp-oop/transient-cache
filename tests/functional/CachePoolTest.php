@@ -19,7 +19,7 @@ class CachePoolTest extends TestCase
     protected const MAX_KEY_LENGTH = 64;
     protected const MAX_POOL_NAME_LENGTH = 107;
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         tearDown();
         parent::tearDown();
