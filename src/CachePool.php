@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace WpOop\TransientCache;
@@ -9,6 +10,7 @@ use Exception;
 use Psr\SimpleCache\CacheInterface;
 use RangeException;
 use RuntimeException;
+use UnexpectedValueException;
 use wpdb;
 use WpOop\TransientCache\Exception\CacheException;
 use WpOop\TransientCache\Exception\InvalidArgumentException;
@@ -35,13 +37,41 @@ use function array_map;
  */
 class CachePool implements CacheInterface
 {
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var string
+     */
     public const RESERVED_KEY_SYMBOLS = '{}()/\@:';
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var string
+     */
     public const NAMESPACE_SEPARATOR = '/';
 
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var string
+     */
     protected const TABLE_NAME_OPTIONS = 'options';
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var string
+     */
     protected const FIELD_NAME_OPTION_NAME = 'option_name';
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var string
+     */
     protected const OPTION_NAME_PREFIX_TRANSIENT = '_transient_';
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var string
+     */
     protected const OPTION_NAME_PREFIX_TIMEOUT = 'timeout_';
+    /**
+     * phpcs:ignore SlevomatCodingStandard.TypeHints.UselessConstantTypeHint.UselessVarAnnotation
+     * @var int
+     */
     protected const OPTION_NAME_MAX_LENGTH = 191;
 
     /**
@@ -165,10 +195,11 @@ class CachePool implements CacheInterface
      */
     public function clear()
     {
+        /** @psalm-suppress InvalidCatch  */
         try {
             $keys = $this->getAllKeys();
             $this->deleteMultiple($keys);
-        } catch (Exception|InvalidArgumentExceptionInterface $e) {
+        } catch (Exception | InvalidArgumentExceptionInterface $e) {
             throw new CacheException(sprintf('Failed to clear cache: %s', $e->getMessage()), 0, $e);
         }
 
@@ -178,7 +209,11 @@ class CachePool implements CacheInterface
     /**
      * @inheritDoc
      *
+     * @param iterable<string> $keys
+     *
      * @throws CacheException If problem retrieving.
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
      */
     public function getMultiple($keys, $default = null)
     {
@@ -198,7 +233,12 @@ class CachePool implements CacheInterface
     /**
      * @inheritDoc
      *
+     * @param iterable<string, mixed> $values
+     * @param null|int|DateInterval $ttl
+     *
      * @throws CacheException If problem persisting.
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
      */
     public function setMultiple($values, $ttl = null)
     {
@@ -224,7 +264,11 @@ class CachePool implements CacheInterface
     /**
      * @inheritDoc
      *
+     * @param iterable<string> $keys
+     *
      * @throws CacheException If problem deleting.
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
      */
     public function deleteMultiple($keys)
     {
@@ -312,7 +356,7 @@ class CachePool implements CacheInterface
     {
         $this->validateTransientKey($key);
 
-        if(!set_transient($key, $value, $ttl)) {
+        if (!set_transient($key, $value, $ttl)) {
             throw new RuntimeException(sprintf('set_transient() failed with key "%1$s" with TTL %2$ss', $key, $ttl));
         }
     }
@@ -343,7 +387,7 @@ class CachePool implements CacheInterface
      * Retrieves an option value by name.
      *
      * @param string $key     The option key.
-     * @param null   $default The value to return if option not found.
+     * @param mixed  $default The value to return if option not found.
      *
      * @return mixed The option value.
      */
@@ -373,7 +417,7 @@ class CachePool implements CacheInterface
      *
      * @throws InvalidArgumentException If key is invalid.
      */
-    protected function validateKey(string $key)
+    protected function validateKey(string $key): void
     {
         $prefix = $this->getTimeoutOptionNamePrefix();
         if (strlen("{$prefix}{$key}") > static::OPTION_NAME_MAX_LENGTH) {
@@ -405,7 +449,14 @@ class CachePool implements CacheInterface
         $maxLength = $this->getTransientKeyMaxLength();
         $keyLength = strlen($key);
         if ($keyLength > $maxLength) {
-            throw new RangeException(sprintf('Transient key "%1$s" length is %2$d chars, which exceeds max length of %3$d chars', $key, $keyLength, $maxLength));
+            throw new RangeException(
+                sprintf(
+                    'Transient key "%1$s" length is %2$d chars, which exceeds max length of %3$d chars',
+                    $key,
+                    $keyLength,
+                    $maxLength
+                )
+            );
         }
     }
 
@@ -441,7 +492,7 @@ class CachePool implements CacheInterface
      *
      * @throws Exception If problem retrieving.
      *
-     * @return iterable A list of keys.
+     * @return iterable<string> A list of keys.
      */
     protected function getAllKeys(): iterable
     {
@@ -462,11 +513,12 @@ class CachePool implements CacheInterface
      * @param string $columnName The name of the field to retrieve.
      * @param array  $args       Query parameters.
      *
-     * @return iterable The list of values for the specified field.
+     * @return iterable<mixed> The list of values for the specified field.
      */
     protected function selectColumn(string $query, string $columnName, array $args = []): iterable
     {
         $query = $this->prepareQuery($query, $args);
+        /** @var list<array<scalar>> $results */
         $results = $this->wpdb->get_results($query, ARRAY_A);
 
         return array_map(function ($row) use ($columnName) {
@@ -511,11 +563,11 @@ class CachePool implements CacheInterface
     /**
      * Retrieves all cache keys that correspond to the given list of option names
      *
-     * @param iterable $optionNames
+     * @param iterable<string> $optionNames
      *
      * @throws Exception If problem retrieving.
      *
-     * @return iterable A list of cache keys.
+     * @return iterable<string> A list of cache keys.
      */
     protected function getCacheKeysFromOptionNames(iterable $optionNames): iterable
     {
@@ -589,6 +641,12 @@ class CachePool implements CacheInterface
         }
 
         $key = substr($name, strlen($prefix));
+
+        if ($key === false) {
+            throw new UnexpectedValueException(
+                sprintf('Could not extract key with prefix "%1$s" from option name "%2$s', $prefix, $name)
+            );
+        }
 
         return $key;
     }

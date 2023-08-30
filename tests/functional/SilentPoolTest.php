@@ -16,7 +16,7 @@ use function Brain\Monkey\tearDown;
 
 class SilentPoolTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         tearDown();
         parent::tearDown();

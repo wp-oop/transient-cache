@@ -3,12 +3,10 @@
 namespace WpOop\TransientCache\Tests\Func;
 
 use DateInterval;
-use Mockery;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\InvalidArgumentException;
 use wpdb;
-use WpOop\TransientCache\CachePool;
 use WpOop\TransientCache\CachePool as TestSubject;
 use PHPUnit\Framework\TestCase;
 use Brain\Monkey\Functions;
@@ -19,7 +17,7 @@ class CachePoolTest extends TestCase
     protected const MAX_KEY_LENGTH = 64;
     protected const MAX_POOL_NAME_LENGTH = 107;
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         tearDown();
         parent::tearDown();

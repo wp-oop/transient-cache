@@ -2,7 +2,7 @@
   "name": "wp-oop/transient-cache",
   "description": "A PSR-16 wrapper for WP transients.",
   "minimum-stability": "dev",
-  "license": "MIT",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "Anton Ukhanev",
@@ -11,13 +11,16 @@
     }
   ],
   "require": {
-    "php": "^7.1",
+    "php": "^7.4 | ^8.0",
     "psr/simple-cache": "^1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.1",
+    "phpunit/phpunit": "^9.0",
     "johnpbloch/wordpress-core": "^5.0",
-    "brain/monkey": "^2.3"
+    "php-stubs/wordpress-stubs": "6.3",
+    "brain/monkey": "^2.3",
+    "vimeo/psalm": "^5.0",
+    "slevomat/coding-standard": "^6.0"
   },
   "autoload": {
     "psr-4": {
@@ -32,6 +35,11 @@
   "extra": {
     "branch-alias": {
       "dev-develop": "0.1.x-dev"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   }
 }
