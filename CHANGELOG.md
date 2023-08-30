@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [[*next-version*]] - YYYY-MM-DD
+### Removed
+- Drop PHP < 7.4 (#21);
+
+### Added
+- Allow PHP 8 (#21);
+- Add static analysis and fix reported issues (#21);
+
+### Fixed
+- Correct license and license holder (#21);
 
 ## [0.1.0-alpha4] - 2020-10-14
 ### Fixed
