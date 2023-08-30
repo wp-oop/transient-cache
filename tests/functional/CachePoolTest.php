@@ -3,12 +3,10 @@
 namespace WpOop\TransientCache\Tests\Func;
 
 use DateInterval;
-use Mockery;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\SimpleCache\CacheException;
 use Psr\SimpleCache\InvalidArgumentException;
 use wpdb;
-use WpOop\TransientCache\CachePool;
 use WpOop\TransientCache\CachePool as TestSubject;
 use PHPUnit\Framework\TestCase;
 use Brain\Monkey\Functions;

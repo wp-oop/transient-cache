@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace WpOop\TransientCache;
@@ -83,7 +84,6 @@ class SilentPool implements CacheInterface
         try {
             return $this->cache->clear();
         } catch (Exception $e) {
-
             return false;
         }
     }

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace WpOop\TransientCache;
@@ -10,7 +11,7 @@ use wpdb;
 use function uniqid;
 
 /**
- * @inheritDoc
+ * A factory of cache pools.
  */
 class CachePoolFactory implements CachePoolFactoryInterface
 {
