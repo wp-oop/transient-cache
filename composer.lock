@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eec9dbcc308d4fa52418aa5033fb053c",
+    "content-hash": "63b7b0421bf985cbe9af34b131503323",
     "packages": [
         {
             "name": "psr/simple-cache",
@@ -422,12 +422,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "fa1ec24f0ab1efe642671ec15c51a3ab879f59bf"
+                "reference": "ce465542111cd1db159b8eece860360c290f06ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/fa1ec24f0ab1efe642671ec15c51a3ab879f59bf",
-                "reference": "fa1ec24f0ab1efe642671ec15c51a3ab879f59bf",
+                "url": "https://api.github.com/repos/composer/semver/zipball/ce465542111cd1db159b8eece860360c290f06ea",
+                "reference": "ce465542111cd1db159b8eece860360c290f06ea",
                 "shasum": ""
             },
             "require": {
@@ -496,7 +496,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-01-13T15:47:53+00:00"
+            "time": "2023-08-30T15:19:54+00:00"
         },
         {
             "name": "composer/xdebug-handler",
