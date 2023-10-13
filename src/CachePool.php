@@ -350,6 +350,7 @@ class CachePool implements CacheInterface
      * @param int    $ttl   The amount of seconds after which the transient will expire.
      *
      * @throws RangeException If key invalid.
+     * @throws UnexpectedValueException If could not write the value to WP Transients API.
      * @throws RuntimeException If problem setting.
      */
     protected function setTransient(string $key, $value, int $ttl): void
@@ -357,7 +358,12 @@ class CachePool implements CacheInterface
         $this->validateTransientKey($key);
 
         if (!set_transient($key, $value, $ttl)) {
-            throw new RuntimeException(sprintf('set_transient() failed with key "%1$s" with TTL %2$ss', $key, $ttl));
+            $actualValue = $this->getTransient($key);
+            if ($actualValue !== $value) {
+                throw new UnexpectedValueException(
+                    sprintf('set_transient() failed with key "%1$s" with TTL %2$ss', $key, $ttl)
+                );
+            }
         }
     }
 
