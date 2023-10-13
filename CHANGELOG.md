@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [[*next-version*]] - YYYY-MM-DD
+### Fixed
+- Setting same value as existing caused an exception due to false-negative result (#22).
 
 ## [0.2.0-alpha1] - 2023-08-30
 ### Removed
