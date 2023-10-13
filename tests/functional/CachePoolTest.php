@@ -359,4 +359,35 @@ class CachePoolTest extends TestCase
             $this->assertFalse($subject->has($notThereKey));
         }
     }
+
+    /**
+     * Imitates a scenario where `set_transient()` erroneously returns `false` if set value is same as existing.
+     */
+    public function testWritingSameValueSucceeds()
+    {
+        {
+            $poolName = uniqid('pool');
+            $defaultValue = uniqid('default');
+            $wpdb = $this->createWpdb();
+            $key = uniqid('key');
+            $value = uniqid('value');
+            $subject = $this->createInstance($wpdb, $poolName, $defaultValue);
+        }
+
+        {
+            Functions\expect('get_transient')
+                ->andReturn($value);
+            Functions\expect('set_transient')
+                ->andReturn();
+        }
+
+        {
+            // If no exception - success
+            $subject->set($key, $value, rand(1, 99999));
+
+            // Problem setting a different value results in an exception
+            $this->expectException(CacheException::class);
+            $subject->set($key, uniqid('other-value'), rand(1, 99999));
+        }
+    }
 }
